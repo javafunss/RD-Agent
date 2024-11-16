@@ -9,16 +9,26 @@ import pandas as pd
 from jinja2 import Environment, StrictUndefined
 
 from rdagent.components.coder.factor_coder.config import FACTOR_IMPLEMENT_SETTINGS
-from rdagent.utils.env import QTDockerEnv
+from rdagent.utils.env import QTDockerEnv, LocalEnv, LocalConf
 
 
 def generate_data_folder_from_qlib():
     template_path = Path(__file__).parent / "factor_data_template"
-    qtde = QTDockerEnv()
-    qtde.prepare()
+    # qtde = QTDockerEnv()
+    # qtde.prepare()
 
+    local_conf = LocalConf(
+        py_bin="/Users/admin/anaconda3/envs/quant/bin",
+        default_entry="qrun /Users/admin/projects/quant/RD-Agent/test/utils/env_tpl/conf.yaml",
+    )
+    qle = LocalEnv(conf=local_conf)
+    qle.prepare()
+    # conf_path = str(DIRNAME / "env_tpl" / "conf.yaml")
+    # qle.run(entry="qrun " + conf_path)
+    # mlrun_p = DIRNAME / "env_tpl" / "mlruns"
+    # self.assertTrue(mlrun_p.exists(), f"Expected output file {mlrun_p} not found")
     # Run the Qlib backtest
-    execute_log = qtde.run(
+    execute_log = qle.run(
         local_path=str(template_path),
         entry=f"python generate.py",
     )

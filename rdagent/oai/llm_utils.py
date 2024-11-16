@@ -379,7 +379,7 @@ class APIBackend:
                         azure_endpoint=self.embedding_api_base,
                     )
             else:
-                self.chat_client = openai.OpenAI(api_key=self.chat_api_key)
+                self.chat_client = openai.OpenAI(api_key=self.chat_api_key, base_url="https://api.gptsapi.net/v1")
                 self.embedding_client = openai.OpenAI(api_key=self.embedding_api_key)
 
         self.dump_chat_cache = LLM_SETTINGS.dump_chat_cache if dump_chat_cache is None else dump_chat_cache
@@ -438,7 +438,7 @@ class APIBackend:
                 "content": system_prompt,
             },
         ]
-        messages.extend(former_messages[-1 * LLM_SETTINGS.max_past_message_include :])
+        messages.extend(former_messages[-1 * LLM_SETTINGS.max_past_message_include:])
         messages.append(
             {
                 "role": "user",
@@ -552,7 +552,7 @@ class APIBackend:
 
         if len(filtered_input_content_list) > 0:
             for sliced_filtered_input_content_list in [
-                filtered_input_content_list[i : i + LLM_SETTINGS.embedding_max_str_num]
+                filtered_input_content_list[i: i + LLM_SETTINGS.embedding_max_str_num]
                 for i in range(0, len(filtered_input_content_list), LLM_SETTINGS.embedding_max_str_num)
             ]:
                 if self.use_azure:
@@ -781,7 +781,7 @@ def calculate_embedding_distance_between_str_list(
     embeddings = APIBackend().create_embedding(source_str_list + target_str_list)
 
     source_embeddings = embeddings[: len(source_str_list)]
-    target_embeddings = embeddings[len(source_str_list) :]
+    target_embeddings = embeddings[len(source_str_list):]
 
     source_embeddings_np = np.array(source_embeddings)
     target_embeddings_np = np.array(target_embeddings)

@@ -5,7 +5,7 @@ import pandas as pd
 
 from rdagent.core.experiment import FBWorkspace
 from rdagent.log import rdagent_logger as logger
-from rdagent.utils.env import QTDockerEnv
+from rdagent.utils.env import QTDockerEnv, LocalEnv, LocalConf
 
 
 class QlibFBWorkspace(FBWorkspace):
@@ -14,17 +14,25 @@ class QlibFBWorkspace(FBWorkspace):
         self.inject_code_from_folder(template_folder_path)
 
     def execute(self, qlib_config_name: str = "conf.yaml", run_env: dict = {}, *args, **kwargs) -> str:
-        qtde = QTDockerEnv()
-        qtde.prepare()
+        # qtde = QTDockerEnv()
+        # qtde.prepare()
+        local_conf = LocalConf(
+            py_bin="/Users/admin/anaconda3/envs/rdagent/bin",
+            default_entry=f"qrun {qlib_config_name}",
+        )
+        qle = LocalEnv(conf=local_conf)
+        qle.prepare()
+
+        # qtde = QTDockerEnv()
 
         # Run the Qlib backtest
-        execute_log = qtde.run(
+        execute_log = qle.run(
             local_path=str(self.workspace_path),
             entry=f"qrun {qlib_config_name}",
             env=run_env,
         )
 
-        execute_log = qtde.run(
+        execute_log = qle.run(
             local_path=str(self.workspace_path),
             entry="python read_exp_res.py",
             env=run_env,

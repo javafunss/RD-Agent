@@ -77,7 +77,7 @@ class Env(Generic[ASpecificBaseModel]):
         """
 
 
-## Local Environment -----
+# Local Environment -----
 
 
 class LocalConf(BaseModel):
@@ -110,6 +110,7 @@ class LocalEnv(Env[LocalConf]):
         cwd = None
         if local_path:
             cwd = Path(local_path).resolve()
+        print(f"Running command: {command}")
         result = subprocess.run(command, cwd=cwd, env={**os.environ, **env}, capture_output=True, text=True)
 
         if result.returncode != 0:
@@ -118,7 +119,7 @@ class LocalEnv(Env[LocalConf]):
         return result.stdout
 
 
-## Docker Environment -----
+# Docker Environment -----
 
 
 class DockerConf(BaseSettings):
