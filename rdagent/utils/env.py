@@ -81,8 +81,8 @@ class Env(Generic[ASpecificBaseModel]):
 
 
 class LocalConf(BaseModel):
-    py_bin: str
-    default_entry: str
+    py_bin: str = "/Users/admin/anaconda3/envs/quant/bin/python"
+    default_entry: str = "~/.qlib/qlib_data/cn_data --region cn"
 
 
 class LocalEnv(Env[LocalConf]):

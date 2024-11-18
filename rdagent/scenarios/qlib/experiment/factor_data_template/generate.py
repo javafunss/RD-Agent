@@ -1,5 +1,6 @@
 import qlib
 
+
 qlib.init(provider_uri="~/.qlib/qlib_data/cn_data")
 
 from qlib.data import D

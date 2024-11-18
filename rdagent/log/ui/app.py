@@ -340,11 +340,19 @@ def metrics_window(df: pd.DataFrame, R: int, C: int, *, height: int = 300, color
         lines = textwrap.wrap(text, width=60)
         return f"<span style='color: {color};'>{'<br>'.join(lines)}</span>"
 
-    hover_texts = [
-        hypothesis_hover_text(state.hypotheses[int(i[6:])], state.h_decisions[int(i[6:])])
-        for i in df.index
-        if i != "alpha158"
-    ]
+    # 构建 hover_texts
+    hover_texts = []
+    for i in df.index:
+        if i == "alpha158":
+            hover_texts.append("Baseline: alpha158")
+        elif i == "Baseline":
+            hover_texts.append("Baseline")
+        else:
+            try:
+                index = int(i[6:])
+                hover_texts.append(hypothesis_hover_text(state.hypotheses[index], state.h_decisions[index]))
+            except (ValueError, KeyError):
+                hover_texts.append("Invalid Index")
     if state.alpha158_metrics is not None:
         hover_texts = ["Baseline: alpha158"] + hover_texts
     for ci, col in enumerate(df.columns):
@@ -507,7 +515,7 @@ def research_window():
             # pdf image
             if pim := state.msgs[round]["r.extract_factors_and_implement.load_pdf_screenshot"]:
                 for i in range(min(2, len(pim))):
-                    st.image(pim[i].content, use_column_width=True)
+                    st.image(pim[i].content, use_container_width=True)
 
             # Hypothesis
             if hg := state.msgs[round]["r.hypothesis generation"]:
@@ -528,7 +536,7 @@ def research_window():
             with c1:
                 if pim := state.msgs[round]["r.pdf_image"]:
                     for i in range(len(pim)):
-                        st.image(pim[i].content, use_column_width=True)
+                        st.image(pim[i].content, use_container_width=True)
 
             # loaded model exp
             with c2:
@@ -763,7 +771,7 @@ with st.container():
     image_c, scen_c = st.columns([3, 3], vertical_alignment="center")
     with image_c:
         img_path = rfiles("rdagent.log.ui").joinpath("flow.png")
-        st.image(str(img_path), use_column_width=True)
+        st.image(str(img_path), use_container_width=True)
     with scen_c:
         st.header("Scenario Description📖", divider="violet", anchor="_scenario")
         if state.scenario is not None:

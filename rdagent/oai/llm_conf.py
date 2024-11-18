@@ -64,7 +64,7 @@ class LLMSettings(BaseSettings):
 
     # server served endpoints
     use_gcr_endpoint: bool = False
-    gcr_endpoint_type: str = "llama2_70b"  # or "llama3_70b", "phi2", "phi3_4k", "phi3_128k"
+    gcr_endpoint_type: str = "llama3_70b"  # or "llama3_70b", "phi2", "phi3_4k", "phi3_128k"
 
     llama2_70b_endpoint: str = ""
     llama2_70b_endpoint_key: str = ""
