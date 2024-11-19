@@ -88,6 +88,8 @@ class FactorCoSTEER(Developer[FactorExperiment]):
         self.rag = FactorGraphRAGStrategy(factor_knowledge_base)
 
         # init intermediate items
+        if exp is None:
+            return
         factor_experiment = FactorEvolvingItem.from_experiment(exp)
 
         self.evolve_agent = FactorRAGEvoAgent(

@@ -32,12 +32,12 @@ class LLMSettings(BaseSettings):
     init_chat_cache_seed: int = 42
 
     # Chat configs
-    openai_api_key: str = ""  # TODO: simplify the key design.
-    base_url: str = ""
-    chat_openai_api_key: str = ""
+    openai_api_key: str = "https://api.gptsapi.net"  # TODO: simplify the key design.
+    base_url: str = "https://api.gptsapi.net"
+    chat_openai_api_key: str = "sk-Xu025acca342d2de919e17bce3d78592872efc26ebcbrPqR"
     chat_azure_api_base: str = ""
     chat_azure_api_version: str = ""
-    chat_model: str = "gpt-4-turbo"
+    chat_model: str = "gpt-4o"  # "qwen-plus"
     chat_max_tokens: int = 3000
     chat_temperature: float = 0.5
     chat_stream: bool = True

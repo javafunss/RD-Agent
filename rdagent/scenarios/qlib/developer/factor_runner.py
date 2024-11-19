@@ -1,3 +1,7 @@
+from rdagent.scenarios.qlib.experiment.factor_experiment import QlibFactorExperiment
+from rdagent.log import rdagent_logger as logger
+from rdagent.core.exception import FactorEmptyError
+from rdagent.components.runner import CachedRunner
 import pickle
 from pathlib import Path
 from typing import List
@@ -10,10 +14,6 @@ from rdagent.core.utils import cache_with_pickle, multiprocessing_wrapper
 
 pandarallel.initialize(verbose=1)
 
-from rdagent.components.runner import CachedRunner
-from rdagent.core.exception import FactorEmptyError
-from rdagent.log import rdagent_logger as logger
-from rdagent.scenarios.qlib.experiment.factor_experiment import QlibFactorExperiment
 
 DIRNAME = Path(__file__).absolute().resolve().parent
 DIRNAME_local = Path.cwd()
@@ -76,6 +76,8 @@ class QlibFactorRunner(CachedRunner[QlibFactorExperiment]):
         Generate the experiment by processing and combining factor data,
         then passing the combined data to Docker for backtest results.
         """
+        if exp is None:
+            return None
         if exp.based_experiments and exp.based_experiments[-1].result is None:
             exp.based_experiments[-1] = self.develop(exp.based_experiments[-1])
 

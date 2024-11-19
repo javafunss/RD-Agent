@@ -61,6 +61,10 @@ class RDLoop(LoopBase, metaclass=LoopMeta):
     @measure_time
     def coding(self, prev_out: dict[str, Any]):
         with logger.tag("d"):  # develop
+
+            if prev_out["exp_gen"] is None:
+                logger.error(f"exp_gen failed.")
+                return None
             exp = self.coder.develop(prev_out["exp_gen"])
             logger.log_object(exp.sub_workspace_list, tag="coder result")
         return exp

@@ -327,7 +327,21 @@ class APIBackend:
 
             self.chat_model = LLM_SETTINGS.chat_model if chat_model is None else chat_model
             self.chat_model_map = json.loads(LLM_SETTINGS.chat_model_map)
-            self.encoder = tiktoken.encoding_for_model(self.chat_model)
+
+            # FIXME modify by lip begin
+            self.chat_api_key = LLM_SETTINGS.chat_openai_api_key
+            chat_api_base = LLM_SETTINGS.base_url
+            self.chat_model = LLM_SETTINGS.chat_model
+
+            # 尝试获取特定模型的编码器，如果失败则使用默认编码器
+            try:
+                self.encoder = tiktoken.encoding_for_model(self.chat_model)
+            except KeyError:
+                logger.warning(f"No encoder found for model {self.chat_model}. Using default encoding.")
+                self.encoder = tiktoken.get_encoding("cl100k_base")  # 默认编码器
+            print(f"Using encoder: {self.encoder.name}")
+            # FIXME modify by lip end
+
             self.chat_api_base = LLM_SETTINGS.chat_azure_api_base if chat_api_base is None else chat_api_base
             self.chat_api_version = (
                 LLM_SETTINGS.chat_azure_api_version if chat_api_version is None else chat_api_version
@@ -381,7 +395,9 @@ class APIBackend:
             else:
                 self.chat_client = openai.OpenAI(api_key=self.chat_api_key, base_url="https://api.gptsapi.net/v1")
                 self.embedding_client = openai.OpenAI(api_key=self.embedding_api_key)
-
+        print(f"Using chat api_base: {self.chat_api_base}")
+        print(f"Using chat model: {self.chat_model}")
+        print(f"Using open key: {self.chat_api_key}")
         self.dump_chat_cache = LLM_SETTINGS.dump_chat_cache if dump_chat_cache is None else dump_chat_cache
         self.use_chat_cache = LLM_SETTINGS.use_chat_cache if use_chat_cache is None else use_chat_cache
         self.dump_embedding_cache = (
@@ -637,6 +653,7 @@ class APIBackend:
         else:
             tag = inspect.stack()[4].function
         model = self.chat_model_map.get(tag, self.chat_model)
+        print(f"tag: {tag}, model: {model}")
 
         finish_reason = None
         if self.use_llama2:
@@ -688,6 +705,7 @@ class APIBackend:
                         if message["role"] == "system":
                             break
                 kwargs["response_format"] = {"type": "json_object"}
+            print(f"chat_client.chat.completions kwargs: {kwargs}")
             response = self.chat_client.chat.completions.create(**kwargs)
 
             if self.chat_stream:

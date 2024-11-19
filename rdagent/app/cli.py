@@ -58,6 +58,6 @@ def app():
 if __name__ == "__main__":
     # 直接调用 fin_factor 函数
     # fin_factor()
-    fin_factor_report("~/.qlib/report")
+    fin_factor_report("/Users/admin/Downloads/reports")
     # fin_model()
     # ui(debug=True)
