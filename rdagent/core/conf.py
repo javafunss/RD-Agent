@@ -13,7 +13,8 @@ class RDAgentSettings(BaseSettings):
     # TODO: (xiao) I think most of the config should be in oai.config
     # Log configs
     # TODO: (xiao) think it can be a separate config.
-    log_trace_path: str | None = None
+    # log_trace_path: str | None = None
+    log_trace_path: str = "~/.qlib/logs/rd_agent_logs"
 
     # azure document intelligence configs
     azure_document_intelligence_key: str = ""
