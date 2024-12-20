@@ -85,7 +85,6 @@ class KGFBWorkspace(FBWorkspace):
 
         execute_log = kgde.run(
             local_path=str(self.workspace_path),
-            entry=f"python train.py",
             env=run_env,
             running_extra_volume=running_extra_volume,
         )

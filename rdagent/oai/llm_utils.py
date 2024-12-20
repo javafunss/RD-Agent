@@ -295,7 +295,6 @@ class APIBackend:
             self.headers = {
                 "Content-Type": "application/json",
                 "Authorization": ("Bearer " + self.gcr_endpoint_key),
-                "azureml-model-deployment": self.gcr_endpoint_deployment,
             }
             self.gcr_endpoint_temperature = LLM_SETTINGS.gcr_endpoint_temperature
             self.gcr_endpoint_top_p = LLM_SETTINGS.gcr_endpoint_top_p
@@ -303,6 +302,8 @@ class APIBackend:
             self.gcr_endpoint_max_token = LLM_SETTINGS.gcr_endpoint_max_token
             if not os.environ.get("PYTHONHTTPSVERIFY", "") and hasattr(ssl, "_create_unverified_context"):
                 ssl._create_default_https_context = ssl._create_unverified_context  # noqa: SLF001
+            self.chat_model_map = json.loads(LLM_SETTINGS.chat_model_map)
+            self.chat_model = LLM_SETTINGS.chat_model if chat_model is None else chat_model
             self.encoder = None
         else:
             self.use_azure = LLM_SETTINGS.use_azure
@@ -414,6 +415,33 @@ class APIBackend:
         self.use_llama2 = LLM_SETTINGS.use_llama2
         self.use_gcr_endpoint = LLM_SETTINGS.use_gcr_endpoint
         self.retry_wait_seconds = LLM_SETTINGS.retry_wait_seconds
+
+    def _get_encoder(self):
+        """
+        tiktoken.encoding_for_model(self.chat_model) does not cover all cases it should consider.
+
+        This function attempts to handle several edge cases.
+        """
+
+        # 1) cases
+        def _azure_patch(model: str) -> str:
+            """
+            When using Azure API, self.chat_model is the deployment name that can be any string.
+            For example, it may be `gpt-4o_2024-08-06`. But tiktoken.encoding_for_model can't handle this.
+            """
+            return model.replace("_", "-")
+
+        model = self.chat_model
+        try:
+            return tiktoken.encoding_for_model(model)
+        except KeyError:
+            logger.warning(f"Failed to get encoder. Trying to patch the model name")
+            for patch_func in [_azure_patch]:
+                try:
+                    return tiktoken.encoding_for_model(patch_func(model))
+                except KeyError:
+                    logger.error(f"Failed to get encoder even after patching with {patch_func.__name__}")
+                    raise
 
     def build_chat_session(
         self,
@@ -674,7 +702,6 @@ class APIBackend:
                             "parameters": {
                                 "temperature": self.gcr_endpoint_temperature,
                                 "top_p": self.gcr_endpoint_top_p,
-                                "do_sample": self.gcr_endpoint_do_sample,
                                 "max_new_tokens": self.gcr_endpoint_max_token,
                             },
                         },
